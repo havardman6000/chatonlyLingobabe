@@ -8,16 +8,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <div className="min-h-screen">
-          {children}
-        </div>
+      <body className="min-h-screen bg-[#1e1e1e] text-white">
+        {children}
       </body>
     </html>
   );
 }
-
-export const metadata = {
-  title: 'Language Learning Chat',
-  description: 'Learn languages through interactive conversations',
-};

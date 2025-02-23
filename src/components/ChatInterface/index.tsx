@@ -1,177 +1,168 @@
+// src/components/ChatInterface/index.tsx
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { characters } from '@/data/character';
-import { useChatStore } from '@/store/chatStore';
-import type { ChatMessage, ChatOption } from '@/types/chat';
-import { getLanguageContent, getPronunciationContent } from '@/utils/chatUtils';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import type { ChatMessage, MessageContent } from '@/types/chat';
 
-export function ChatInterface() {
+export function ChatInterface({ characterId = 'mei' }: { characterId?: string }) {
   const router = useRouter();
-  const { selectedCharacter, messages, currentScene, actions } = useChatStore();
-  const [happiness, setHappiness] = useState(50);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [happiness, setHappiness] = useState(62);
+  const [input, setInput] = useState('');
+  const [showOptions, setShowOptions] = useState(true);
 
-  const character = selectedCharacter ? characters[selectedCharacter] : null;
-  const currentSceneData = character?.scenes?.[currentScene];
+  const character = characters[characterId];
 
+  // Initialize messages
   useEffect(() => {
-    if (currentSceneData?.initial && messages.length === 0) {
-      actions.addMessage({
+    if (character?.scenes[1]?.initial && messages.length === 0) {
+      const initialMessage: ChatMessage = {
         role: 'assistant',
-        content: currentSceneData.initial
-      });
+        content: character.scenes[1].initial
+      };
+      setMessages([initialMessage]);
     }
-  }, [currentScene, currentSceneData, messages.length, actions]);
+  }, [character, messages.length]);
 
-  if (!character) return null;
+  const handleOptionSelect = (option: MessageContent, response?: MessageContent) => {
+    const newMessages: ChatMessage[] = [
+      ...messages,
+      { role: 'user', content: option } as ChatMessage
+    ];
+
+    if (response) {
+      newMessages.push({
+        role: 'assistant',
+        content: response
+      } as ChatMessage);
+    }
+
+    setMessages(newMessages);
+    setShowOptions(false);
+
+    // Update happiness if points are available
+    if ('points' in option) {
+      setHappiness(prev => Math.min(100, prev + (option.points as number)));
+    }
+  };
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground">
-      {/* Background tree image */}
-      <div 
-        className="fixed top-[6%] left-[-13.5%] h-full w-[30%] bg-cover bg-no-repeat z-40"
-        style={{ backgroundImage: 'url(/tutors/Tree.png)' }}
-      />
-
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 p-4 bg-background/80 backdrop-blur-sm border-b">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Button 
-            onClick={() => router.back()}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L4.414 9H17a1 1 0 110 2H4.414l5.293 5.293a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
-            Back
-          </Button>
-
-          <div className="text-center">
-            <h1 className="text-xl font-semibold">{character.name}</h1>
-            <div className="flex items-center justify-center gap-2 mt-1">
-              <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-              <span className="text-sm text-muted-foreground">Happiness: {happiness}</span>
-            </div>
+    <div className="flex flex-col min-h-screen bg-[#1e1e1e] text-white">
+      {/* Top Bar */}
+      <div className="flex items-center p-4 border-b border-gray-800">
+        <button 
+          onClick={() => router.push('/chat/chinese')}
+          className="flex items-center gap-2 text-white"
+        >
+          <span className="text-xl">←</span>
+          <span>Back</span>
+        </button>
+        
+        <div className="flex-1 text-center">
+          <h1 className="text-xl font-medium">Mei</h1>
+          <div className="flex items-center justify-center gap-2 text-gray-400">
+            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+            <span>Happiness: {happiness}</span>
           </div>
-
-          <div className="w-[88px]" />
         </div>
-      </header>
+        
+        <div className="w-20"></div>
+      </div>
 
       {/* Character Image */}
-      <Card className="fixed top-20 left-1/2 -translate-x-1/2 w-64 h-48 overflow-hidden z-30">
-        <img 
-          src={character.image}
-          alt={character.name}
-          className="w-full h-full object-cover"
+      <div className="flex justify-center p-4">
+        <img
+          src={character?.image}
+          alt={character?.name}
+          className="w-[300px] h-[220px] object-cover rounded-lg"
         />
-      </Card>
+      </div>
 
-      {/* Messages */}
-      <main className="pt-80 pb-32 px-4">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {messages.map((message, index) => (
-            <div 
-              key={index}
-              className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <img 
-                  src={character.image}
-                  alt={character.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              )}
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto px-4 space-y-4">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}
+          >
+            {message.role === 'assistant' && (
+              <img 
+                src={character?.image}
+                alt={character?.name}
+                className="w-8 h-8 rounded-full"
+              />
+            )}
 
-              <div 
-                className={`relative max-w-[80%] rounded-lg p-4 ${
-                  message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                }`}
-              >
-                <p className="text-base">
-                  {getLanguageContent(message.content, character.language)}
+            <div className={`relative max-w-[80%] rounded-lg p-4 ${
+              message.role === 'user' ? 'bg-green-600' : 'bg-gray-800'
+            }`}>
+              <p className="text-white">
+                {message.content[character?.language || 'english']}
+              </p>
+              {message.content.pinyin && (
+                <p className="text-gray-400 text-sm mt-1">
+                  {message.content.pinyin}
                 </p>
-
-                {getPronunciationContent(message.content, character.language) && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {getPronunciationContent(message.content, character.language)}
-                  </p>
-                )}
-
-                <p className="text-sm text-muted-foreground mt-1">
-                  {message.content.english}
-                </p>
-
-                {message.content.context && (
-                  <p className="text-sm italic text-muted-foreground mt-2">
-                    {message.content.context}
-                  </p>
-                )}
-
-                {/* Play button */}
-                <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-
-              {message.role === 'user' && (
-                <img 
-                  src="/tutors/user_avatar.jpg"
-                  alt="You"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
               )}
-            </div>
-          ))}
-        </div>
-      </main>
-
-      {/* Options */}
-      {currentSceneData?.options && (
-        <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t">
-          <div className="max-w-4xl mx-auto p-4">
-            <div className="flex gap-4 overflow-x-auto pb-2">
-              {currentSceneData.options.map((option, index) => (
-                <Card
-                  key={option.id || index}
-                  className="flex-none p-4 w-64 cursor-pointer hover:bg-accent transition-colors"
-                  onClick={() => {
-                    actions.addMessage({
-                      role: 'user',
-                      content: option
-                    });
-                    if (option.response) {
-                      actions.addMessage({
-                        role: 'assistant',
-                        content: option.response
-                      });
-                    }
-                    if (option.points) {
-                      setHappiness(h => Math.min(100, h + (option.points || 0)));
-                    }
-                  }}
-                >
-                  <p className="text-sm">
-                    {getLanguageContent(option, character.language)}
-                  </p>
-                  {getPronunciationContent(option, character.language) && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {getPronunciationContent(option, character.language)}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {option.english}
-                  </p>
-                </Card>
-              ))}
+              <p className="text-gray-400 text-sm mt-1">
+                {message.content.english}
+              </p>
+              {message.content.context && (
+                <p className="text-gray-500 text-sm mt-2 italic">
+                  {message.content.context}
+                </p>
+              )}
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t border-gray-800 p-4">
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setShowOptions(!showOptions)}
+            className="p-2 text-gray-400 hover:text-white rounded-lg"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+          
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type or select a message..."
+            className="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2 outline-none"
+          />
+          
+          <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            Send
+          </button>
         </div>
-      )}
+
+        {/* Chat Options */}
+        {showOptions && character?.scenes[1]?.options && (
+          <div className="mt-4 grid grid-cols-1 gap-2">
+            {character.scenes[1].options.map((option, index) => (
+              <button
+                key={index}
+                className="text-left bg-gray-800 p-4 rounded-lg hover:bg-gray-700"
+                onClick={() => handleOptionSelect(option, option.response)}
+              >
+                <p className="text-white">{option.chinese}</p>
+                <p className="text-gray-400 text-sm mt-1">{option.pinyin}</p>
+                <p className="text-gray-400 text-sm mt-1">{option.english}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+export default ChatInterface;

@@ -1,4 +1,6 @@
 import type { Character, SupportedLanguage } from '@/types/chat';
+
+
 export const characters: Record<string, Character> = {
   mei: {  
     "id": "mei",
@@ -1337,4 +1339,7 @@ valentina: {
   };
   export const isValidCharacterId = (id: string): id is keyof typeof characters => {
     return id in characters;
+  };
+  export const getCharacterByLanguage = (language: SupportedLanguage) => {
+    return Object.values(characters).filter(char => char.language === language);
   };
