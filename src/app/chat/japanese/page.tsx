@@ -1,25 +1,12 @@
 // src/app/chat/japanese/page.tsx
-'use client'
+'use client';
 
-import { BackButton } from '@/components/BackButton'
-import { TutorSelect } from '@/components/TutorSelect'
-import { useWeb3 } from '@/components/providers/web3-provider'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { BackButton } from '@/components/BackButton';
+import { TutorSelect } from '@/components/TutorSelect';
+import { useRouter } from 'next/navigation';
 
 export default function JapaneseTutorPage() {
-  const { isConnected } = useWeb3()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!isConnected) {
-      router.push('/')
-    }
-  }, [isConnected, router])
-
-  if (!isConnected) {
-    return null
-  }
+  const router = useRouter();
   const disabledTutors = ['Aya', 'Misa']; // List of disabled tutors
 
   return (
@@ -36,8 +23,8 @@ export default function JapaneseTutorPage() {
             Select a tutor to begin your Japanese learning journey
           </p>
         </div>
-        <TutorSelect language="japanese" disabledTutors={disabledTutors}  />
+        <TutorSelect language="japanese" disabledTutors={disabledTutors} />
       </div>
     </main>
-  )
+  );
 }

@@ -1,37 +1,19 @@
 // src/app/chat/japanese/layout.tsx
-'use client'
+'use client';
 
-import { useWeb3 } from '@/components/providers/web3-provider'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import EnhancedWalletConnector from '@/components/EnhancedWalletConnector'
+import { BackButton } from '@/components/BackButton';
 
 export default function JapaneseLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const { isConnected } = useWeb3()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!isConnected) {
-      router.push('/')
-    }
-  }, [isConnected, router])
-
   return (
-    <div className="min-h-screen">
-      <div className="fixed top-4 right-4 z-50">
-        <EnhancedWalletConnector />
+    <div className="min-h-screen bg-gradient-to-r from-red-50 to-rose-100">
+      <div className="fixed top-4 left-4 z-50">
+        <BackButton />
       </div>
-      {isConnected ? children : (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-xl text-gray-700">
-            Please connect your wallet to continue...
-          </div>
-        </div>
-      )}
+      {children}
     </div>
-  )
+  );
 }

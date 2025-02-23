@@ -21,6 +21,10 @@ export default function MeiChatPage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <div
+        className="fixed top-[6%] left-[-13.5%] h-full w-[30%] bg-cover bg-no-repeat z-40"
+        style={{ backgroundImage: 'url(/tutors/Tree.png)' }}
+      />
       <ChatInterface />
     </div>
   );

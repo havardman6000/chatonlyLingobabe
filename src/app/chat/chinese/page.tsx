@@ -1,7 +1,6 @@
 // src/app/chat/chinese/page.tsx
 'use client';
 
-import { BackButton } from '@/components/BackButton';
 import { useRouter } from 'next/navigation';
 
 export default function ChinesePage() {
@@ -9,10 +8,7 @@ export default function ChinesePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-r from-pink-50 to-rose-100 py-12">
-      <div className="fixed top-4 left-4 z-50">
-        <BackButton />
-      </div>
-      
+  
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
@@ -30,7 +26,7 @@ export default function ChinesePage() {
             onClick={() => router.push('/chat/chinese/mei')}
           >
             <img 
-              src="/tutors/mei_chinese.jpg" 
+              src="/tutors/dining_chinese.jpg" 
               alt="Mei" 
               className="w-full h-[400px] object-cover"
             />

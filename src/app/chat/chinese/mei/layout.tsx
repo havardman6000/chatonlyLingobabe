@@ -1,9 +1,9 @@
-// src/app/chat/japanese/aoi/layout.tsx
+// src/app/chat/chinese/mei/layout.tsx
 'use client';
 
 import { BackButton } from '@/components/BackButton';
 
-export default function AoiLayout({
+export default function MeiLayout({
   children,
 }: {
   children: React.ReactNode;

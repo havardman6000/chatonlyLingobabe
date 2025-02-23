@@ -1,6 +1,5 @@
-// src/components/ChatInterface/ChatOptions.tsx
-import { ChatOption } from '@/types/chat';
-import { Button } from '@/components/ui/button';
+// src/components/ChatInterface/ChatOption.tsx
+import type { ChatOption } from '@/types/chat';
 
 interface ChatOptionsProps {
   options: ChatOption[];
@@ -8,39 +7,47 @@ interface ChatOptionsProps {
 }
 
 export function ChatOptions({ options, onSelectOption }: ChatOptionsProps) {
-  const getPrimaryText = (option: ChatOption) => {
-    return option.chinese || 
-           option.japanese || 
-           option.korean || 
-           option.spanish || 
-           option.english;
-  };
-
-  const getPronunciationText = (option: ChatOption) => {
-    return option.pinyin || 
-           option.romaji || 
-           option.romanized;
-  };
-
   return (
-    <div className="space-y-2">
+    <div className="flex items-center gap-4 max-w-2xl mx-auto">
       {options.map((option, index) => {
-        const primaryText = getPrimaryText(option);
-        const pronunciationText = getPronunciationText(option);
+        const mainText = option.chinese || 
+                        option.japanese || 
+                        option.korean || 
+                        option.spanish || 
+                        option.english;
+                        
+        const pronunciation = option.pinyin || 
+                            option.romaji || 
+                            option.romanized;
 
         return (
           <div
-            key={option.id || index}
-            className="bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
-            onClick={() => onSelectOption(primaryText)}
+            key={index}
+            className="flex flex-col flex-1"
           >
-            <div className="p-3">
-              <p className="text-white">{primaryText}</p>
-              {pronunciationText && (
-                <p className="text-sm text-gray-300">{pronunciationText}</p>
+            <div className="text-sm text-white mb-2">
+              <p>{mainText}</p>
+              {pronunciation && (
+                <p className="text-gray-400">{pronunciation}</p>
               )}
-              <p className="text-sm text-gray-400">{option.english}</p>
+              {option.english && (
+                <p className="text-gray-400">{option.english}</p>
+              )}
             </div>
+            <button
+              onClick={() => onSelectOption(mainText)}
+              className="w-full aspect-square bg-black hover:bg-gray-900 rounded-full flex items-center justify-center transition-colors"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-12 w-12" 
+                viewBox="0 0 24 24" 
+                fill="currentColor"
+                color="white"
+              >
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </button>
           </div>
         );
       })}
